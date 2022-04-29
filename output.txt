@@ -6,6 +6,11 @@ R o e g
 a m s e 
 n   s s 
 d m a ! 
+test:
+52 6f 65 67 
+61 6d 73 65 
+6e 20 73 73 
+64 6d 61 21 
 Blocks Hex:
 52 6f 65 67 
 61 6d 73 65 
@@ -84,400 +89,395 @@ ed 02 b8 de
 MixColumns Round 1
 6c 4d 6c 23 
 0d ea 1c 22 
-a6 99 cc 5d 
-46 bd 49 c5 
+ff c8 cc 44 
+20 9e ae f2 
 AddRoundKey Round 1
 41 65 bb 0f 
 96 77 7f bb 
-e4 dc 74 1c 
-4d be b6 c2 
+bd 8d 74 05 
+2b 9d 51 f5 
 SubBytes Round 2
 83 4d ea 76 
 90 f5 d2 ea 
-69 86 92 9c 
-e3 ae 4e 25 
+7a 5d 92 6b 
+f1 5e d1 e6 
 ShiftRows Round 2
 83 4d ea 76 
 f5 d2 ea 90 
-92 9c 69 86 
-25 e3 ae 4e 
+92 6b 7a 5d 
+e6 f1 5e d1 
 MixColumns Round 2
-ae 88 2d 8f 
-fa ae 30 92 
-d6 6e 3b 73 
-d4 0a 62 06 
+6d 6d ce cb 
+39 be f5 7b 
+78 41 16 34 
+2e 97 09 ee 
 AddRoundKey Round 2
-6f 61 13 9d 
-e2 2b d6 ed 
-51 ac 41 48 
-ae 73 e4 87 
+ac 84 f0 d9 
+21 3b 13 04 
+ff 83 6c 0f 
+54 ee 8f 6f 
 SubBytes Round 3
-a8 ef 7d 5e 
-98 f1 f6 55 
-d1 91 83 52 
-e4 8f 69 17 
+91 5f 8c 35 
+fd e2 7d f2 
+16 ec 50 76 
+20 28 73 a8 
 ShiftRows Round 3
-a8 ef 7d 5e 
-f1 f6 55 98 
-83 52 d1 91 
-17 e4 8f 69 
+91 5f 8c 35 
+e2 7d f2 fd 
+50 76 16 ec 
+a8 20 28 73 
 MixColumns Round 3
-d7 72 5b f7 
-d8 0a 30 b4 
-9a 84 1b 78 
-cd f9 82 30 
+fc 6f 30 e9 
+16 1f 61 88 
+30 ae 2a 9e 
+51 aa 3b a8 
 AddRoundKey Round 3
-c0 8c 9b 25 
-22 75 a9 52 
-11 cd 28 70 
-7e 33 ce fd 
+eb 91 f0 3b 
+ec 60 f8 6e 
+bb e7 19 96 
+e2 60 77 65 
 SubBytes Round 4
-ba 64 14 3f 
-93 9d d3 00 
-82 bd 34 51 
-f3 c3 8b 54 
+e9 81 8c e2 
+ce d0 41 9f 
+ea 94 d4 90 
+98 d0 f5 4d 
 ShiftRows Round 4
-ba 64 14 3f 
-9d d3 00 93 
-34 51 82 bd 
-54 f3 c3 8b 
+e9 81 8c e2 
+d0 41 9f ce 
+d4 90 ea 94 
+4d 98 d0 f5 
 MixColumns Round 4
-b3 04 69 e6 
-93 d9 4a 55 
-f3 b9 55 b7 
-7d 51 a1 4c 
+3b d2 83 f7 
+78 30 5c 37 
+5d 48 b7 1b 
+be 62 41 96 
 AddRoundKey Round 4
-22 6b c6 9b 
-59 6c 66 9f 
-c5 c6 19 f3 
-7b 9d 21 01 
+aa bd 2c 8a 
+b2 85 70 fd 
+6b 37 fb 5f 
+b8 ae c1 db 
 SubBytes Round 5
-93 7f b4 14 
-cb 50 33 db 
-a6 b4 d4 0d 
-21 5e fd 7c 
+ac 7a 71 7e 
+37 97 51 54 
+7f 9a 0f cf 
+6c e4 78 b9 
 ShiftRows Round 5
-93 7f b4 14 
-50 33 db cb 
-d4 0d a6 b4 
-7c 21 5e fd 
+ac 7a 71 7e 
+97 51 54 37 
+0f cf 7f 9a 
+b9 6c e4 78 
 MixColumns Round 5
-65 87 fd 27 
-28 2f b6 a3 
-34 82 da 7f 
-56 c3 7b dd 
+57 a4 85 47 
+31 fe bc dd 
+f5 1a ec ee 
+1e c8 6b df 
 AddRoundKey Round 5
-90 1d c8 6f 
-f9 4b fe 21 
-e1 28 3c dd 
-af f6 ce 25 
+a2 3e b0 0f 
+e0 9a f4 5f 
+20 b0 0a 4c 
+e7 fd de 27 
 SubBytes Round 6
-60 a4 e8 a8 
-99 b3 bb fd 
-f8 34 eb c1 
-79 42 8b 3f 
+3a b2 e7 76 
+e1 b8 bf cf 
+b7 e7 67 29 
+94 54 1d cc 
 ShiftRows Round 6
-60 a4 e8 a8 
-b3 bb fd 99 
-eb c1 f8 34 
-3f 79 42 8b 
+3a b2 e7 76 
+b8 bf cf e1 
+67 29 b7 e7 
+cc 94 54 1d 
 MixColumns Round 6
-da 3d 6d 44 
-04 e8 58 56 
-59 75 38 33 
-de 05 a7 ee 
+0c 18 7c 2e 
+34 38 f4 80 
+03 f8 a1 65 
+12 68 e2 a6 
 AddRoundKey Round 6
-1c 61 04 65 
-ef 67 9f 13 
-cd 4b e0 49 
-75 9b 8c 3d 
+ca 44 15 0f 
+df b7 33 c5 
+97 c6 79 1f 
+b9 f6 c9 75 
 SubBytes Round 7
-9c ef f2 4d 
-df 85 db 7d 
-bd b3 e1 3b 
-9d 14 64 27 
+74 1b 59 76 
+9e a9 c3 a6 
+88 b4 b6 c0 
+56 42 dd 9d 
 ShiftRows Round 7
-9c ef f2 4d 
-85 db 7d df 
-e1 3b bd b3 
-27 9d 14 64 
+74 1b 59 76 
+a9 c3 a6 9e 
+b6 c0 88 b4 
+9d 56 42 dd 
 MixColumns Round 7
-71 15 d1 37 
-92 92 c0 42 
-8f 72 d2 16 
-f1 0b 25 1f 
+23 fe 89 3c 
+61 8b cf 4b 
+16 b9 32 e7 
+a2 82 41 11 
 AddRoundKey Round 7
-99 a1 0c cb 
-a3 2c b9 7e 
-7d be c6 78 
-a7 c3 c6 2f 
+cb 4a 54 c0 
+50 35 b6 77 
+e4 75 26 89 
+f4 4a a2 21 
 SubBytes Round 8
-ee 32 fe 1f 
-0a 71 56 f3 
-ff ae b4 bc 
-5c 2e b4 15 
+1f d6 20 ba 
+53 96 4e f5 
+69 9d f7 a7 
+bf d6 3a fd 
 ShiftRows Round 8
-ee 32 fe 1f 
-71 56 f3 0a 
-b4 bc ff ae 
-15 5c 2e b4 
+1f d6 20 ba 
+96 4e f5 53 
+f7 a7 69 9d 
+fd bf d6 3a 
 MixColumns Round 8
-f5 7e 38 3a 
-de 1d 37 56 
-47 7d 9a 8e 
-03 ee 45 52 
+95 7d fb 3d 
+d7 07 bc 9a 
+60 17 66 86 
+a1 ed 4b 6f 
 AddRoundKey Round 8
-76 49 d2 2c 
-70 0d 5e 03 
-b1 47 b4 ce 
-e5 c0 88 af 
+16 4a 11 2b 
+79 17 d5 cf 
+96 2d 48 c6 
+47 c3 86 92 
 SubBytes Round 9
-38 3b b5 71 
-51 d7 58 7b 
-c8 a0 8d 8b 
-d9 ba c4 79 
+47 d6 82 f1 
+b6 f0 03 8a 
+90 d8 52 b4 
+a0 2e 44 4f 
 ShiftRows Round 9
-38 3b b5 71 
-d7 58 7b 51 
-8d 8b c8 a0 
-79 d9 ba c4 
+47 d6 82 f1 
+f0 03 8a b6 
+52 b4 90 d8 
+4f a0 2e 44 
 MixColumns Round 9
-e6 cc 8e 75 
-78 d4 ba ec 
-15 e5 90 18 
-ba e4 ab 00 
+98 a6 24 a4 
+05 b7 08 b1 
+c2 5d 41 20 
+f5 8d db ee 
 AddRoundKey Round 9
-82 9f 37 da 
-df 63 64 67 
-b7 7d 26 ee 
-1b 6b e9 bf 
+fc f5 9d 0b 
+a2 00 d6 3a 
+60 c5 f7 d6 
+54 02 99 51 
 SubBytes Final
-13 db 9a 57 
-9e fb 43 85 
-a9 ff f7 28 
-af 7f 1e 08 
+b0 e6 5e 2b 
+3a 63 f6 80 
+d0 a6 68 f6 
+20 77 ee d1 
 ShiftRows Final
-13 db 9a 57 
-fb 43 85 9e 
-f7 28 a9 ff 
-08 af 7f 1e 
+b0 e6 5e 2b 
+63 f6 80 3a 
+68 f6 d0 a6 
+d1 20 77 ee 
 AddRoundKey Final
-7c e7 1f 7d 
-1e 11 09 99 
-5d 1a 2d 8d 
-d0 f8 6a b4 
-round 10: [[124 30 93 208] [231 17 26 248] [31 9 45 106] [125 153 141 180]]
-ciphertext: fB5d0OcRGvgfCS1qfZmNtA==
-hex: 7c1e5dd0e7111af81f092d6a7d998db4Blocks:
-7c e7 1f 7d 
-1e 11 09 99 
-5d 1a 2d 8d 
-d0 f8 6a b4 
+df da db 01 
+86 a4 0c 3d 
+c2 c4 54 d4 
+09 77 62 44 
+round 10: [[223 134 194 9] [218 164 196 119] [219 12 84 98] [1 61 212 68]]
+ciphertext: 34bCCdqkxHfbDFRiAT3URA==
+hex: df86c209daa4c477db0c5462013dd444Blocks:
+df da db 01 
+86 a4 0c 3d 
+c2 c4 54 d4 
+09 77 62 44 
 Inverse ARK round 0
-13 db 9a 57 
-fb 43 85 9e 
-f7 28 a9 ff 
-08 af 7f 1e 
+b0 e6 5e 2b 
+63 f6 80 3a 
+68 f6 d0 a6 
+d1 20 77 ee 
 Inverse SR round 0
-13 db 9a 57 
-9e fb 43 85 
-a9 ff f7 28 
-af 7f 1e 08 
+b0 e6 5e 2b 
+3a 63 f6 80 
+d0 a6 68 f6 
+20 77 ee d1 
 Inverse SBOX round 0
-82 9f 37 da 
-df 63 64 67 
-b7 7d 26 ee 
-1b 6b e9 bf 
+fc f5 9d 0b 
+a2 00 d6 3a 
+60 c5 f7 d6 
+54 02 99 51 
 IARK round 9
-e6 cc 8e 75 
-78 d4 ba ec 
-15 e5 90 18 
-ba e4 ab 00 
+98 a6 24 a4 
+05 b7 08 b1 
+c2 5d 41 20 
+f5 8d db ee 
 IMC round 9
-82 89 e9 16 
-25 a7 dd 67 
-13 92 e9 62 
-85 a5 d2 92 
+47 d6 82 f1 
+f0 03 8a b6 
+52 b4 90 d8 
+4f a0 2e 44 
 ISR round 9
-82 89 e9 16 
-67 25 a7 dd 
-e9 62 13 92 
-a5 d2 92 85 
+47 d6 82 f1 
+b6 f0 03 8a 
+90 d8 52 b4 
+a0 2e 44 4f 
 ISBOX round 9
-11 f2 eb ff 
-0a c2 89 c9 
-eb ab 82 74 
-29 7f 74 67 
+16 4a 11 2b 
+79 17 d5 cf 
+96 2d 48 c6 
+47 c3 86 92 
 IARK round 8
-92 c5 01 e9 
-a4 d2 e0 9c 
-1d 91 ac 34 
-cf 51 b9 9a 
+95 7d fb 3d 
+d7 07 bc 9a 
+60 17 66 86 
+a1 ed 4b 6f 
 IMC round 8
-71 95 4f 03 
-ff 5b 12 96 
-2d 74 11 73 
-47 6d b8 3d 
+1f d6 20 ba 
+96 4e f5 53 
+f7 a7 69 9d 
+fd bf d6 3a 
 ISR round 8
-71 95 4f 03 
-96 ff 5b 12 
-11 73 2d 74 
-6d b8 3d 47 
+1f d6 20 ba 
+53 96 4e f5 
+69 9d f7 a7 
+bf d6 3a fd 
 ISBOX round 8
-2c ad 92 d5 
-35 7d 57 39 
-e3 8f fa ca 
-b3 9a 8b 16 
+cb 4a 54 c0 
+50 35 b6 77 
+e4 75 26 89 
+f4 4a a2 21 
 IARK round 7
-c4 19 4f 29 
-04 c3 2e 05 
-11 43 ee a4 
-e5 52 68 26 
+23 fe 89 3c 
+61 8b cf 4b 
+16 b9 32 e7 
+a2 82 41 11 
 IMC round 7
-a9 0c a1 da 
-08 63 28 79 
-14 db d5 10 
-81 7f bb 1d 
+74 1b 59 76 
+a9 c3 a6 9e 
+b6 c0 88 b4 
+9d 56 42 dd 
 ISR round 7
-a9 0c a1 da 
-79 08 63 28 
-d5 10 14 db 
-7f bb 1d 81 
+74 1b 59 76 
+9e a9 c3 a6 
+88 b4 b6 c0 
+56 42 dd 9d 
 ISBOX round 7
-b7 81 f1 7a 
-af bf 00 ee 
-b5 7c 9b 9f 
-6b fe de 91 
+ca 44 15 0f 
+df b7 33 c5 
+97 c6 79 1f 
+b9 f6 c9 75 
 IARK round 6
-71 dd 98 5b 
-44 30 c7 ab 
-21 42 43 e5 
-c0 60 f5 42 
+0c 18 7c 2e 
+34 38 f4 80 
+03 f8 a1 65 
+12 68 e2 a6 
 IMC round 6
-6e bb 87 b7 
-86 62 fc 67 
-8d a1 95 a7 
-b1 b7 07 20 
+3a b2 e7 76 
+b8 bf cf e1 
+67 29 b7 e7 
+cc 94 54 1d 
 ISR round 6
-6e bb 87 b7 
-67 86 62 fc 
-95 a7 8d a1 
-b7 07 20 b1 
+3a b2 e7 76 
+e1 b8 bf cf 
+b7 e7 67 29 
+94 54 1d cc 
 ISBOX round 6
-45 fe ea 20 
-0a dc ab 55 
-ad 89 b4 f1 
-20 38 54 56 
+a2 3e b0 0f 
+e0 9a f4 5f 
+20 b0 0a 4c 
+e7 fd de 27 
 IARK round 5
-b0 64 df 68 
-db b8 e3 d7 
-78 23 52 53 
-d9 0d e1 ae 
+57 a4 85 47 
+31 fe bc dd 
+f5 1a ec ee 
+1e c8 6b df 
 IMC round 5
-ab e3 3e 85 
-4e 54 09 5f 
-ec 5b b6 3a 
-c3 1e 0e a2 
+ac 7a 71 7e 
+97 51 54 37 
+0f cf 7f 9a 
+b9 6c e4 78 
 ISR round 5
-ab e3 3e 85 
-5f 4e 54 09 
-b6 3a ec 5b 
-1e 0e a2 c3 
+ac 7a 71 7e 
+37 97 51 54 
+7f 9a 0f cf 
+6c e4 78 b9 
 ISBOX round 5
-0e 4d d1 67 
-84 b6 fd 40 
-79 a2 83 57 
-e9 d7 1a 33 
+aa bd 2c 8a 
+b2 85 70 fd 
+6b 37 fb 5f 
+b8 ae c1 db 
 IARK round 4
-9f 22 7e 1a 
-4e 03 d1 8a 
-4f dd cf 13 
-ef 1b 9a 7e 
+3b d2 83 f7 
+78 30 5c 37 
+5d 48 b7 1b 
+be 62 41 96 
 IMC round 4
-9f 2f a2 51 
-2a 5a b1 0a 
-ad 05 fc b9 
-69 97 15 1f 
+e9 81 8c e2 
+d0 41 9f ce 
+d4 90 ea 94 
+4d 98 d0 f5 
 ISR round 4
-9f 2f a2 51 
-0a 2a 5a b1 
-fc b9 ad 05 
-97 15 1f 69 
+e9 81 8c e2 
+ce d0 41 9f 
+ea 94 d4 90 
+98 d0 f5 4d 
 ISBOX round 4
-6e 4e 1a 70 
-a3 95 46 56 
-55 db 18 36 
-85 2f cb e4 
+eb 91 f0 3b 
+ec 60 f8 6e 
+bb e7 19 96 
+e2 60 77 65 
 IARK round 3
-79 b0 da a2 
-59 ea df b0 
-de 92 2b 3e 
-36 e5 87 29 
+fc 6f 30 e9 
+16 1f 61 88 
+30 ae 2a 9e 
+51 aa 3b a8 
 IMC round 3
-41 d2 af ed 
-39 78 c1 c8 
-6d aa 17 7b 
-dd 2d d0 5b 
+91 5f 8c 35 
+e2 7d f2 fd 
+50 76 16 ec 
+a8 20 28 73 
 ISR round 3
-41 d2 af ed 
-c8 39 78 c1 
-17 7b 6d aa 
-2d d0 5b dd 
+91 5f 8c 35 
+fd e2 7d f2 
+16 ec 50 76 
+20 28 73 a8 
 ISBOX round 3
-f8 7f 1b 53 
-b1 5b c1 dd 
-87 03 b3 62 
-fa 60 57 c9 
+ac 84 f0 d9 
+21 3b 13 04 
+ff 83 6c 0f 
+54 ee 8f 6f 
 IARK round 2
-39 96 25 41 
-a9 de 27 a2 
-00 c1 c9 59 
-80 19 d1 48 
+6d 6d ce cb 
+39 be f5 7b 
+78 41 16 34 
+2e 97 09 ee 
 IMC round 2
-76 3d 76 df 
-d4 ad df e9 
-6f 51 ae 38 
-dd 51 1d fc 
+83 4d ea 76 
+f5 d2 ea 90 
+92 6b 7a 5d 
+e6 f1 5e d1 
 ISR round 2
-76 3d 76 df 
-e9 d4 ad df 
-ae 38 6f 51 
-51 1d fc dd 
+83 4d ea 76 
+90 f5 d2 ea 
+7a 5d 92 6b 
+f1 5e d1 e6 
 ISBOX round 2
-0f 8b 0f ef 
-eb 19 18 ef 
-be 76 06 70 
-70 de 55 c9 
+41 65 bb 0f 
+96 77 7f bb 
+bd 8d 74 05 
+2b 9d 51 f5 
 IARK round 1
-22 a3 d8 c3 
-70 84 7b 76 
-fc 33 be 31 
-7b dd aa ce 
+6c 4d 6c 23 
+0d ea 1c 22 
+ff c8 cc 44 
+20 9e ae f2 
 IMC round 1
-f4 40 7e 7b 
-78 55 fb 02 
-9b 59 6d 1d 
-c2 85 5f 2e 
+ed 02 b8 de 
+7f 5d db fb 
+19 7e 3c cc 
+35 d0 4d 5e 
 ISR round 1
-f4 40 7e 7b 
-02 78 55 fb 
-6d 1d 9b 59 
-85 5f 2e c2 
+ed 02 b8 de 
+fb 7f 5d db 
+3c cc 19 7e 
+d0 4d 5e 35 
 ISBOX round 1
-ba 72 8a 03 
-6a c1 ed 63 
-b3 de e8 15 
-67 84 c3 a8 
+53 6a 9a 9c 
+63 6b 8d 9f 
+6d 27 8e 8a 
+60 65 9d d9 
 ARK round 0
-bb 77 75 f8 
-68 c7 13 99 
-b0 d9 15 ec 
-63 8c 3f 50 
+52 6f 65 67 
+61 6d 73 65 
+6e 20 73 73 
+64 6d 61 21 
 
-plaintext: »h°cwÇÙŒu?ø™ìP
+plaintext: Random messages!
 
-inverse_test: [[19 0 14 243] [29 117 168 30] [147 168 182 59] [8 204 235 241]]
-13 1d 93 08 
-00 75 a8 cc 
-0e a8 b6 eb 
-f3 1e 3b f1 

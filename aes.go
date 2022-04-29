@@ -202,6 +202,9 @@ func encrypt(data, key []byte) []byte {
 		}
 		fmt.Println()
 	}
+	test := inverse_mix_columns(mix_columns(blocks))
+	fmt.Println("test:")
+	print_block(test)
 	fmt.Println("Blocks Hex:")
 	print_block(blocks)
 	round_keys := calculate_round_keys(key_block)
@@ -401,8 +404,8 @@ func mix_columns(block [][]byte) [][]byte {
 	for i := 0; i < 4; i++ {
 		mixed_block[i][0] = mul2[block[i][0]] ^ mul3[block[i][1]] ^ block[i][2] ^ block[i][3]
 		mixed_block[i][1] = block[i][0] ^ mul2[block[i][1]] ^ mul3[block[i][2]] ^ block[i][3]
-		mixed_block[i][2] = block[i][0] ^ block[i][1] ^ mul2[block[2][i]] ^ mul3[block[i][3]]
-		mixed_block[i][3] = mul3[block[i][0]] ^ block[i][0] ^ block[i][0] ^ mul2[block[i][3]]
+		mixed_block[i][2] = block[i][0] ^ block[i][1] ^ mul2[block[i][2]] ^ mul3[block[i][3]]
+		mixed_block[i][3] = mul3[block[i][0]] ^ block[i][1] ^ block[i][2] ^ mul2[block[i][3]]
 	}
 	return mixed_block
 }
