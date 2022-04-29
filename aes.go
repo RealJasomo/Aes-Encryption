@@ -5,6 +5,7 @@ import (
 	"encoding/base64"
 	"fmt"
 	"os"
+	"strconv"
 )
 
 var debug = false
@@ -159,11 +160,18 @@ var mul14 = [256]byte{
 
 func main() {
 	// get filename from arguments
-	if len(os.Args) != 2 {
-		fmt.Println("Usage: ./aes <filename>")
+	if len(os.Args) != 2 && len(os.Args) != 3 && len(os.Args) != 4 {
+		fmt.Println("Usage: ./aes <filename> <key>")
 		os.Exit(1)
 	}
 	filename := os.Args[1]
+	nested := 1
+	if len(os.Args) >= 3 {
+		nested, _ = strconv.Atoi(os.Args[2])
+	}
+	if len(os.Args) == 4 {
+		debug = true
+	}
 	// read file
 	data, err := os.Open(filename)
 	if err != nil {
@@ -182,18 +190,28 @@ func main() {
 		key_block := generate_blocks(key)
 		round_keys := calculate_round_keys(key_block)
 		ciphertext := encrypt(blocks, round_keys)
-		fmt.Println("ciphertext:", base64.StdEncoding.EncodeToString(ciphertext))
-		fmt.Print("hex: ")
+		for i := 1; i < nested; i++ {
+			blocks = generate_blocks(ciphertext)
+			ciphertext = encrypt(blocks, round_keys)
+		}
+		fmt.Println("ciphertext b64:", base64.StdEncoding.EncodeToString(ciphertext))
+		fmt.Print("ciphertext hex: ")
 		for b := range ciphertext {
 			fmt.Printf("%02x", ciphertext[b])
 		}
+		fmt.Println()
 		ciphertext_blocks := generate_blocks(ciphertext)
 		plaintext := decrypt(ciphertext_blocks, round_keys)
-		fmt.Println("\nplaintext:", string(plaintext))
+		for i := 1; i < nested; i++ {
+			plaintext_blocks := generate_blocks(plaintext)
+			plaintext = decrypt(plaintext_blocks, round_keys)
+		}
+		fmt.Println("plaintext:", string(plaintext))
 		fmt.Println()
 	}
 }
 
+// Perform AES-128 encryption on a byte array
 func encrypt(blocks, round_keys [][]byte) []byte {
 	// break data into 4x4 blocks
 	if debug {
