@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"sync"
 )
 
 var debug = false
@@ -187,8 +188,8 @@ func main() {
 	key := scanner.Bytes()
 	key_block := generate_blocks(key)
 	// encrypt subsequent lines with key
-	for scanner.Scan() {
-		blocks := generate_blocks(scanner.Bytes())
+	enc_func := func(bytes []byte, wg *sync.WaitGroup) {
+		blocks := generate_blocks(bytes)
 		round_keys := calculate_round_keys(key_block)
 		ciphertext := encrypt(blocks, round_keys)
 		for i := 1; i < nested; i++ {
@@ -209,7 +210,14 @@ func main() {
 		}
 		fmt.Println("plaintext:", string(plaintext))
 		fmt.Println()
+		wg.Done()
 	}
+	wg := sync.WaitGroup{}
+	for scanner.Scan() {
+		wg.Add(1)
+		go enc_func(scanner.Bytes(), &wg)
+	}
+	wg.Wait()
 }
 
 // Perform AES-128 encryption on a byte array
