@@ -440,7 +440,7 @@ func calculate_round_keys(key [][]byte) [][]byte {
 
 // Perform the inverse of generating blocks to linearize the bytestream
 func linearize(blocks [][]byte) []byte {
-	return bytes.Join([][]byte{blocks[0], blocks[1], blocks[2], blocks[3]}, []byte{})
+	return bytes.Join(blocks, []byte{})
 }
 
 // Generate 4x4 blocks from the data stream
