@@ -7,6 +7,8 @@ import (
 	"os"
 )
 
+var debug = false
+
 var sbox = [256]byte{
 	0x63, 0x7c, 0x77, 0x7b, 0xf2, 0x6b, 0x6f, 0xc5, 0x30, 0x01, 0x67, 0x2b, 0xfe, 0xd7, 0xab, 0x76,
 	0xca, 0x82, 0xc9, 0x7d, 0xfa, 0x59, 0x47, 0xf0, 0xad, 0xd4, 0xa2, 0xaf, 0x9c, 0xa4, 0x72, 0xc0,
@@ -174,121 +176,261 @@ func main() {
 	// get first line from data
 	scanner.Scan()
 	key := scanner.Bytes()
-	fmt.Println("Key:", key)
 	// encrypt subsequent lines with key
 	for scanner.Scan() {
-		ciphertext := encrypt(scanner.Bytes(), key)
+		blocks := generate_blocks(scanner.Bytes())
+		key_block := generate_blocks(key)
+		round_keys := calculate_round_keys(key_block)
+		ciphertext := encrypt(blocks, round_keys)
 		fmt.Println("ciphertext:", base64.StdEncoding.EncodeToString(ciphertext))
 		fmt.Print("hex: ")
 		for b := range ciphertext {
 			fmt.Printf("%02x", ciphertext[b])
 		}
-		plaintext := decrypt(ciphertext, key)
+		ciphertext_blocks := generate_blocks(ciphertext)
+		plaintext := decrypt(ciphertext_blocks, round_keys)
 		fmt.Println("\nplaintext:", string(plaintext))
 		fmt.Println()
 	}
 }
 
-func encrypt(data, key []byte) []byte {
+func encrypt(blocks, round_keys [][]byte) []byte {
 	// break data into 4x4 blocks
-	blocks := generate_blocks(data)
-	key_block := generate_blocks(key)
-	fmt.Println("test_linearize", string(linearize(blocks)))
-	fmt.Println("key_blocks:", key_block)
-	fmt.Println("blocks:", blocks)
-	for i := 0; i < 4; i++ {
-		for j := 0; j < 4; j++ {
-			fmt.Print(string(blocks[j][i]), " ")
+	if debug {
+		fmt.Println("Block:")
+		for i := 0; i < 4; i++ {
+			for j := 0; j < 4; j++ {
+				fmt.Print(string(blocks[j][i]), " ")
+			}
+			fmt.Println()
 		}
-		fmt.Println()
 	}
-	test := inverse_mix_columns(mix_columns(blocks))
-	fmt.Println("test:")
-	print_block(test)
-	fmt.Println("Blocks Hex:")
-	print_block(blocks)
-	round_keys := calculate_round_keys(key_block)
-	for i := 0; i < 11; i++ {
-		fmt.Println("Round Key ", i)
-		// print block using round_key 4i to 4i+3
-		print_block(round_keys[i*4 : (i+1)*4])
+	print_block(blocks, "Blocks Hex:")
+	if debug {
+		for i := 0; i < 11; i++ {
+			fmt.Println("Round Key ", i)
+			// print block using round_key 4i to 4i+3
+			print_block(round_keys[i*4 : (i+1)*4])
+		}
 	}
 	//round 1
 	for i := 0; i < 4; i++ {
 		blocks[i] = add_round_key(blocks[i], round_keys[i])
 	}
-	fmt.Println("Round 1")
-	print_block(blocks)
+
+	print_block(blocks, "Round 1")
 
 	for i := 1; i < 10; i++ {
 		//sub bytes
 		for j := 0; j < 4; j++ {
 			blocks[j] = sub_bytes(blocks[j])
 		}
-		fmt.Println("SubBytes Round", i)
-		print_block(blocks)
+		print_block(blocks, "SubBytes Round", i)
 
 		//shift rows
 		blocks = shift_rows(blocks)
-		fmt.Println("ShiftRows Round", i)
-		print_block(blocks)
+		print_block(blocks, "ShiftRows Round", i)
 
 		//mix columns
 		blocks = mix_columns(blocks)
-		fmt.Println("MixColumns Round", i)
-		print_block(blocks)
+		print_block(blocks, "MixColumns Round", i)
 		//add round key
 		for j := 0; j < 4; j++ {
 			blocks[j] = add_round_key(blocks[j], round_keys[(4*i)+j])
 		}
-		fmt.Println("AddRoundKey Round", i)
-		print_block(blocks)
+		print_block(blocks, "AddRoundKey Round", i)
 	}
 	// final round
 	//sub bytes
 	for i := 0; i < 4; i++ {
 		blocks[i] = sub_bytes(blocks[i])
 	}
-	fmt.Println("SubBytes Final")
-	print_block(blocks)
+	print_block(blocks, "SubBytes Final")
 	//shift rows
 	blocks = shift_rows(blocks)
-	fmt.Println("ShiftRows Final")
-	print_block(blocks)
+	print_block(blocks, "ShiftRows Final")
+
 	//add round key
 	for i := 0; i < 4; i++ {
 		blocks[i] = add_round_key(blocks[i], round_keys[40+i])
 	}
-	fmt.Println("AddRoundKey Final")
-	print_block(blocks)
-	fmt.Println("round 10:", blocks)
+
+	print_block(blocks, "AddRoundKey Final")
 	return linearize(blocks)
 }
 
-func linearize(blocks [][]byte) []byte {
-	linear := make([]byte, 16)
+// Perform decryption on the data
+func decrypt(blocks, round_keys [][]byte) []byte {
+	//print blocks
+	print_block(blocks, "Blocks:")
+
 	for i := 0; i < 4; i++ {
-		for j := 0; j < 4; j++ {
-			linear[(4*i)+j] = blocks[i][j]
-		}
+		blocks[i] = add_round_key(blocks[i], round_keys[40+i])
 	}
-	return linear
+	print_block(blocks, "Inverse ARK round 0")
+
+	blocks = inverse_shift_rows(blocks)
+	print_block(blocks, "Inverse SR round 0")
+
+	for i := 0; i < 4; i++ {
+		blocks[i] = inverse_sub_bytes(blocks[i])
+	}
+
+	print_block(blocks, "Inverse SBOX round 0")
+
+	for i := 9; i >= 1; i-- {
+		for j := 0; j < 4; j++ {
+			blocks[j] = add_round_key(blocks[j], round_keys[(i*4)+j])
+		}
+		print_block(blocks, "IARK round", i)
+
+		blocks = inverse_mix_columns(blocks)
+
+		print_block(blocks, "IMC round", i)
+
+		blocks = inverse_shift_rows(blocks)
+
+		print_block(blocks, "ISR round", i)
+
+		for j := 0; j < 4; j++ {
+			blocks[j] = inverse_sub_bytes(blocks[j])
+		}
+		print_block(blocks, "ISBOX round", i)
+	}
+
+	for j := 0; j < 4; j++ {
+		blocks[j] = add_round_key(blocks[j], round_keys[j])
+	}
+	print_block(blocks, "ARK round 0")
+	return linearize(blocks)
 }
 
-func generate_blocks(data []byte) [][]byte {
-	// break data into 4x4 blocks
-	blocks := make([][]byte, 4)
-	for i := 0; i < 4; i++ {
-		blocks[i] = make([]byte, 4)
-	}
-	for i := 0; i < 4; i++ {
-		for j := 0; j < 4; j++ {
-			blocks[i][j] = data[i*4+j]
+// Print a block if in debug mode
+func print_block(block [][]byte, print_label ...interface{}) {
+	if debug {
+		fmt.Println(print_label...)
+		for i := 0; i < 4; i++ {
+			for j := 0; j < 4; j++ {
+				fmt.Printf("%02x ", block[j][i])
+			}
+			fmt.Println()
 		}
 	}
-	return blocks
 }
 
+// Perform SubBytes on each byte in the block with the S-Box
+func sub_bytes(word []byte) []byte {
+	// substitute bytes with s-box
+	w := make([]byte, 4)
+	for i := 0; i < 4; i++ {
+		w[i] = sbox[word[i]]
+	}
+	return w
+}
+
+// Perform inverse SubBytes on each byte in the block with the Inverse S-Box
+func inverse_sub_bytes(word []byte) []byte {
+	// substitute bytes with inverse s-box
+	w := make([]byte, 4)
+	for i := 0; i < 4; i++ {
+		w[i] = inverse_sbox[word[i]]
+	}
+	return w
+}
+
+// Perform MixColumns on the block
+func mix_columns(block [][]byte) [][]byte {
+	mixed_block := make([][]byte, 4)
+	for i := 0; i < 4; i++ {
+		mixed_block[i] = make([]byte, 4)
+	}
+	for i := 0; i < 4; i++ {
+		mixed_block[i][0] = mul2[block[i][0]] ^ mul3[block[i][1]] ^ block[i][2] ^ block[i][3]
+		mixed_block[i][1] = block[i][0] ^ mul2[block[i][1]] ^ mul3[block[i][2]] ^ block[i][3]
+		mixed_block[i][2] = block[i][0] ^ block[i][1] ^ mul2[block[i][2]] ^ mul3[block[i][3]]
+		mixed_block[i][3] = mul3[block[i][0]] ^ block[i][1] ^ block[i][2] ^ mul2[block[i][3]]
+	}
+	return mixed_block
+}
+
+// Perform inverse MixColumns on the block
+func inverse_mix_columns(block [][]byte) [][]byte {
+	mixed_block := make([][]byte, 4)
+	for i := 0; i < 4; i++ {
+		mixed_block[i] = make([]byte, 4)
+	}
+	for i := 0; i < 4; i++ {
+		mixed_block[i][0] = mul14[block[i][0]] ^ mul11[block[i][1]] ^ mul13[block[i][2]] ^ mul9[block[i][3]]
+		mixed_block[i][1] = mul9[block[i][0]] ^ mul14[block[i][1]] ^ mul11[block[i][2]] ^ mul13[block[i][3]]
+		mixed_block[i][2] = mul13[block[i][0]] ^ mul9[block[i][1]] ^ mul14[block[i][2]] ^ mul11[block[i][3]]
+		mixed_block[i][3] = mul11[block[i][0]] ^ mul13[block[i][1]] ^ mul9[block[i][2]] ^ mul14[block[i][3]]
+	}
+	return mixed_block
+}
+
+// Perform  ShiftRows on the block
+func shift_rows(block [][]byte) [][]byte {
+	shifted_block := make([][]byte, 4)
+	for i := 0; i < 4; i++ {
+		shifted_block[i] = make([]byte, 4)
+	}
+	for j := 0; j < 4; j++ {
+		shifted_block[j][0] = block[j][0]
+	}
+	shifted_block[0][1], shifted_block[1][1], shifted_block[2][1], shifted_block[3][1] = block[1][1], block[2][1], block[3][1], block[0][1]
+	shifted_block[0][2], shifted_block[1][2], shifted_block[2][2], shifted_block[3][2] = block[2][2], block[3][2], block[0][2], block[1][2]
+	shifted_block[0][3], shifted_block[1][3], shifted_block[2][3], shifted_block[3][3] = block[3][3], block[0][3], block[1][3], block[2][3]
+	return shifted_block
+}
+
+// Perform inverse ShiftRows on the block
+func inverse_shift_rows(block [][]byte) [][]byte {
+	shifted_block := make([][]byte, 4)
+	for i := 0; i < 4; i++ {
+		shifted_block[i] = make([]byte, 4)
+	}
+	for j := 0; j < 4; j++ {
+		shifted_block[j][0] = block[j][0]
+	}
+	shifted_block[0][1], shifted_block[1][1], shifted_block[2][1], shifted_block[3][1] = block[3][1], block[0][1], block[1][1], block[2][1]
+	shifted_block[0][2], shifted_block[1][2], shifted_block[2][2], shifted_block[3][2] = block[2][2], block[3][2], block[0][2], block[1][2]
+	shifted_block[0][3], shifted_block[1][3], shifted_block[2][3], shifted_block[3][3] = block[1][3], block[2][3], block[3][3], block[0][3]
+	return shifted_block
+}
+
+// Rotate column such that entry one is moved to the end and the rest are shifted up by one
+func rot_word(b []byte) []byte {
+	// move first byte to end and shift rest up by one
+	word := make([]byte, 4)
+	for i := 0; i < 4; i++ {
+		word[i] = b[(i+1)%4]
+	}
+	return word
+}
+
+// Perform XOR of the round constant on the upper most bit of the rotated word
+func r_con(word []byte, round int) []byte {
+	// calculate r-con for round
+	rcon := make([]byte, 4)
+	rcon[0] = word[0] ^ round_constants[round]
+	for i := 1; i < 4; i++ {
+		rcon[i] = word[i]
+	}
+	return rcon
+}
+
+// Perform AddRoundKey (ARK) on the block
+func add_round_key(w, key []byte) []byte {
+	// add round key
+	word := make([]byte, 4)
+	for i := 0; i < 4; i++ {
+		word[i] = w[i] ^ key[i]
+
+	}
+	return word
+}
+
+// Perform AES Key Schedule on intital key to expand from 4 columns to 44 columns
 func calculate_round_keys(key [][]byte) [][]byte {
 	// calculate round key
 	round_keys := make([][]byte, 44)
@@ -305,15 +447,6 @@ func calculate_round_keys(key [][]byte) [][]byte {
 			rotated_word := rot_word(round_keys[i-1])
 			s_box_ouput := sub_bytes(rotated_word)
 			round_keys[i] = add_round_key(round_keys[i-4], r_con(s_box_ouput, (i/4)-1))
-			// if i == 4 {
-			// 	fmt.Printf("W(0)[0] %02x \n", round_keys[0][0]^0x2d)
-			// 	fmt.Printf("S(W(3))[0] %02x \n", s_box_ouput[0])
-			// 	fmt.Println("W(4)")
-			// 	for j := 0; j < 4; j++ {
-			// 		fmt.Printf("%02x ", round_keys[i][j])
-			// 	}
-			// 	fmt.Println()
-			// }
 		} else {
 			round_keys[i] = add_round_key(round_keys[i-1], round_keys[i-4])
 		}
@@ -321,170 +454,28 @@ func calculate_round_keys(key [][]byte) [][]byte {
 	return round_keys
 }
 
-func rot_word(b []byte) []byte {
-	// move first byte to end and shift rest up by one
-	word := make([]byte, 4)
-	for i := 0; i < 4; i++ {
-		word[i] = b[(i+1)%4]
-	}
-	return word
-}
-
-func sub_bytes(word []byte) []byte {
-	// substitute bytes with s-box
-	w := make([]byte, 4)
-	for i := 0; i < 4; i++ {
-		w[i] = sbox[word[i]]
-	}
-	return w
-}
-
-func inverse_sub_bytes(word []byte) []byte {
-	// substitute bytes with inverse s-box
-	w := make([]byte, 4)
-	for i := 0; i < 4; i++ {
-		w[i] = inverse_sbox[word[i]]
-	}
-	return w
-}
-
-func r_con(word []byte, round int) []byte {
-	// calculate r-con for round
-	rcon := make([]byte, 4)
-	rcon[0] = word[0] ^ round_constants[round]
-	for i := 1; i < 4; i++ {
-		rcon[i] = word[i]
-	}
-	return rcon
-}
-
-func add_round_key(w, key []byte) []byte {
-	// add round key
-	word := make([]byte, 4)
-	for i := 0; i < 4; i++ {
-		word[i] = w[i] ^ key[i]
-
-	}
-	return word
-}
-
-func shift_rows(block [][]byte) [][]byte {
-	shifted_block := make([][]byte, 4)
-	for i := 0; i < 4; i++ {
-		shifted_block[i] = make([]byte, 4)
-	}
-	for j := 0; j < 4; j++ {
-		shifted_block[j][0] = block[j][0]
-	}
-	shifted_block[0][1], shifted_block[1][1], shifted_block[2][1], shifted_block[3][1] = block[1][1], block[2][1], block[3][1], block[0][1]
-	shifted_block[0][2], shifted_block[1][2], shifted_block[2][2], shifted_block[3][2] = block[2][2], block[3][2], block[0][2], block[1][2]
-	shifted_block[0][3], shifted_block[1][3], shifted_block[2][3], shifted_block[3][3] = block[3][3], block[0][3], block[1][3], block[2][3]
-	return shifted_block
-}
-
-func inverse_shift_rows(block [][]byte) [][]byte {
-	shifted_block := make([][]byte, 4)
-	for i := 0; i < 4; i++ {
-		shifted_block[i] = make([]byte, 4)
-	}
-	for j := 0; j < 4; j++ {
-		shifted_block[j][0] = block[j][0]
-	}
-	shifted_block[0][1], shifted_block[1][1], shifted_block[2][1], shifted_block[3][1] = block[3][1], block[0][1], block[1][1], block[2][1]
-	shifted_block[0][2], shifted_block[1][2], shifted_block[2][2], shifted_block[3][2] = block[2][2], block[3][2], block[0][2], block[1][2]
-	shifted_block[0][3], shifted_block[1][3], shifted_block[2][3], shifted_block[3][3] = block[1][3], block[2][3], block[3][3], block[0][3]
-	return shifted_block
-}
-
-func mix_columns(block [][]byte) [][]byte {
-	mixed_block := make([][]byte, 4)
-	for i := 0; i < 4; i++ {
-		mixed_block[i] = make([]byte, 4)
-	}
-	for i := 0; i < 4; i++ {
-		mixed_block[i][0] = mul2[block[i][0]] ^ mul3[block[i][1]] ^ block[i][2] ^ block[i][3]
-		mixed_block[i][1] = block[i][0] ^ mul2[block[i][1]] ^ mul3[block[i][2]] ^ block[i][3]
-		mixed_block[i][2] = block[i][0] ^ block[i][1] ^ mul2[block[i][2]] ^ mul3[block[i][3]]
-		mixed_block[i][3] = mul3[block[i][0]] ^ block[i][1] ^ block[i][2] ^ mul2[block[i][3]]
-	}
-	return mixed_block
-}
-func inverse_mix_columns(block [][]byte) [][]byte {
-	mixed_block := make([][]byte, 4)
-	for i := 0; i < 4; i++ {
-		mixed_block[i] = make([]byte, 4)
-	}
-	for i := 0; i < 4; i++ {
-		mixed_block[i][0] = mul14[block[i][0]] ^ mul11[block[i][1]] ^ mul13[block[i][2]] ^ mul9[block[i][3]]
-		mixed_block[i][1] = mul9[block[i][0]] ^ mul14[block[i][1]] ^ mul11[block[i][2]] ^ mul13[block[i][3]]
-		mixed_block[i][2] = mul13[block[i][0]] ^ mul9[block[i][1]] ^ mul14[block[i][2]] ^ mul11[block[i][3]]
-		mixed_block[i][3] = mul11[block[i][0]] ^ mul13[block[i][1]] ^ mul9[block[i][2]] ^ mul14[block[i][3]]
-	}
-	return mixed_block
-}
-
-func decrypt(data, key []byte) []byte {
-	// decrypt data
-	blocks := generate_blocks(data)
-	key_block := generate_blocks(key)
-	round_keys := calculate_round_keys(key_block)
-	//print blocks
-	fmt.Println("Blocks:")
-	print_block(blocks)
-
-	for i := 0; i < 4; i++ {
-		blocks[i] = add_round_key(blocks[i], round_keys[40+i])
-	}
-	fmt.Println("Inverse ARK round 0")
-	print_block(blocks)
-
-	blocks = inverse_shift_rows(blocks)
-	fmt.Println("Inverse SR round 0")
-	print_block(blocks)
-
-	for i := 0; i < 4; i++ {
-		blocks[i] = inverse_sub_bytes(blocks[i])
-	}
-	fmt.Println("Inverse SBOX round 0")
-	print_block(blocks)
-
-	for i := 9; i >= 1; i-- {
-		for j := 0; j < 4; j++ {
-			blocks[j] = add_round_key(blocks[j], round_keys[(i*4)+j])
-		}
-		fmt.Println("IARK round", i)
-		print_block(blocks)
-
-		blocks = inverse_mix_columns(blocks)
-
-		fmt.Println("IMC round", i)
-		print_block(blocks)
-
-		blocks = inverse_shift_rows(blocks)
-
-		fmt.Println("ISR round", i)
-		print_block(blocks)
-
-		for j := 0; j < 4; j++ {
-			blocks[j] = inverse_sub_bytes(blocks[j])
-		}
-		fmt.Println("ISBOX round", i)
-		print_block(blocks)
-	}
-
-	for j := 0; j < 4; j++ {
-		blocks[j] = add_round_key(blocks[j], round_keys[j])
-	}
-	fmt.Println("ARK round 0")
-	print_block(blocks)
-	return linearize(blocks)
-}
-
-func print_block(block [][]byte) {
+// Perform the inverse of generating blocks to linearize the bytestream
+func linearize(blocks [][]byte) []byte {
+	linear := make([]byte, 16)
 	for i := 0; i < 4; i++ {
 		for j := 0; j < 4; j++ {
-			fmt.Printf("%02x ", block[j][i])
+			linear[(4*i)+j] = blocks[i][j]
 		}
-		fmt.Println()
 	}
+	return linear
+}
+
+// Generate 4x4 blocks from the data stream
+func generate_blocks(data []byte) [][]byte {
+	// break data into 4x4 blocks
+	blocks := make([][]byte, 4)
+	for i := 0; i < 4; i++ {
+		blocks[i] = make([]byte, 4)
+	}
+	for i := 0; i < 4; i++ {
+		for j := 0; j < 4; j++ {
+			blocks[i][j] = data[i*4+j]
+		}
+	}
+	return blocks
 }
