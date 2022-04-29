@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"bytes"
 	"encoding/base64"
 	"fmt"
 	"os"
@@ -338,22 +339,12 @@ func print_block(block [][]byte, print_label ...interface{}) {
 
 // Perform SubBytes on each byte in the block with the S-Box
 func sub_bytes(word []byte) []byte {
-	// substitute bytes with s-box
-	w := make([]byte, 4)
-	for i := 0; i < 4; i++ {
-		w[i] = sbox[word[i]]
-	}
-	return w
+	return []byte{sbox[word[0]], sbox[word[1]], sbox[word[2]], sbox[word[3]]}
 }
 
 // Perform inverse SubBytes on each byte in the block with the Inverse S-Box
 func inverse_sub_bytes(word []byte) []byte {
-	// substitute bytes with inverse s-box
-	w := make([]byte, 4)
-	for i := 0; i < 4; i++ {
-		w[i] = inverse_sbox[word[i]]
-	}
-	return w
+	return []byte{inverse_sbox[word[0]], inverse_sbox[word[1]], inverse_sbox[word[2]], inverse_sbox[word[3]]}
 }
 
 // Perform MixColumns on the block
@@ -388,64 +379,39 @@ func inverse_mix_columns(block [][]byte) [][]byte {
 
 // Perform  ShiftRows on the block
 func shift_rows(block [][]byte) [][]byte {
-	shifted_block := make([][]byte, 4)
-	for i := 0; i < 4; i++ {
-		shifted_block[i] = make([]byte, 4)
-	}
-	for j := 0; j < 4; j++ {
-		shifted_block[j][0] = block[j][0]
-	}
-	shifted_block[0][1], shifted_block[1][1], shifted_block[2][1], shifted_block[3][1] = block[1][1], block[2][1], block[3][1], block[0][1]
-	shifted_block[0][2], shifted_block[1][2], shifted_block[2][2], shifted_block[3][2] = block[2][2], block[3][2], block[0][2], block[1][2]
-	shifted_block[0][3], shifted_block[1][3], shifted_block[2][3], shifted_block[3][3] = block[3][3], block[0][3], block[1][3], block[2][3]
-	return shifted_block
+	block[0][1], block[1][1], block[2][1], block[3][1] = block[1][1], block[2][1], block[3][1], block[0][1]
+	block[0][2], block[1][2], block[2][2], block[3][2] = block[2][2], block[3][2], block[0][2], block[1][2]
+	block[0][3], block[1][3], block[2][3], block[3][3] = block[3][3], block[0][3], block[1][3], block[2][3]
+	return block
 }
 
 // Perform inverse ShiftRows on the block
 func inverse_shift_rows(block [][]byte) [][]byte {
-	shifted_block := make([][]byte, 4)
-	for i := 0; i < 4; i++ {
-		shifted_block[i] = make([]byte, 4)
-	}
-	for j := 0; j < 4; j++ {
-		shifted_block[j][0] = block[j][0]
-	}
-	shifted_block[0][1], shifted_block[1][1], shifted_block[2][1], shifted_block[3][1] = block[3][1], block[0][1], block[1][1], block[2][1]
-	shifted_block[0][2], shifted_block[1][2], shifted_block[2][2], shifted_block[3][2] = block[2][2], block[3][2], block[0][2], block[1][2]
-	shifted_block[0][3], shifted_block[1][3], shifted_block[2][3], shifted_block[3][3] = block[1][3], block[2][3], block[3][3], block[0][3]
-	return shifted_block
+	block[0][1], block[1][1], block[2][1], block[3][1] = block[3][1], block[0][1], block[1][1], block[2][1]
+	block[0][2], block[1][2], block[2][2], block[3][2] = block[2][2], block[3][2], block[0][2], block[1][2]
+	block[0][3], block[1][3], block[2][3], block[3][3] = block[1][3], block[2][3], block[3][3], block[0][3]
+	return block
 }
 
 // Rotate column such that entry one is moved to the end and the rest are shifted up by one
 func rot_word(b []byte) []byte {
-	// move first byte to end and shift rest up by one
-	word := make([]byte, 4)
-	for i := 0; i < 4; i++ {
-		word[i] = b[(i+1)%4]
-	}
-	return word
+	b[0], b[1], b[2], b[3] = b[1], b[2], b[3], b[0]
+	return b
 }
 
 // Perform XOR of the round constant on the upper most bit of the rotated word
 func r_con(word []byte, round int) []byte {
-	// calculate r-con for round
-	rcon := make([]byte, 4)
-	rcon[0] = word[0] ^ round_constants[round]
-	for i := 1; i < 4; i++ {
-		rcon[i] = word[i]
-	}
-	return rcon
+	word[0] ^= round_constants[round]
+	return word
 }
 
 // Perform AddRoundKey (ARK) on the block
 func add_round_key(w, key []byte) []byte {
 	// add round key
-	word := make([]byte, 4)
 	for i := 0; i < 4; i++ {
-		word[i] = w[i] ^ key[i]
-
+		w[i] ^= key[i]
 	}
-	return word
+	return w
 }
 
 // Perform AES Key Schedule on intital key to expand from 4 columns to 44 columns
@@ -474,13 +440,7 @@ func calculate_round_keys(key [][]byte) [][]byte {
 
 // Perform the inverse of generating blocks to linearize the bytestream
 func linearize(blocks [][]byte) []byte {
-	linear := make([]byte, 16)
-	for i := 0; i < 4; i++ {
-		for j := 0; j < 4; j++ {
-			linear[(4*i)+j] = blocks[i][j]
-		}
-	}
-	return linear
+	return bytes.Join([][]byte{blocks[0], blocks[1], blocks[2], blocks[3]}, []byte{})
 }
 
 // Generate 4x4 blocks from the data stream
