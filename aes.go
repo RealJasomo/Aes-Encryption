@@ -193,62 +193,71 @@ func encrypt(data, key []byte) []byte {
 	// break data into 4x4 blocks
 	blocks := generate_blocks(data)
 	key_block := generate_blocks(key)
+	fmt.Println("test_linearize", string(linearize(blocks)))
 	fmt.Println("key_blocks:", key_block)
 	fmt.Println("blocks:", blocks)
 	for i := 0; i < 4; i++ {
 		for j := 0; j < 4; j++ {
-			fmt.Print(string(blocks[j][i]))
+			fmt.Print(string(blocks[j][i]), " ")
 		}
 		fmt.Println()
 	}
+	fmt.Println("Blocks Hex:")
+	print_block(blocks)
 	round_keys := calculate_round_keys(key_block)
 	for i := 0; i < 11; i++ {
 		fmt.Println("Round Key ", i)
-		for j := 0; j < 4; j++ {
-			for k := 0; k < 4; k++ {
-				fmt.Printf("%02x ", round_keys[k+(4*i)][j])
-			}
-			fmt.Println()
-		}
+		// print block using round_key 4i to 4i+3
+		print_block(round_keys[i*4 : (i+1)*4])
 	}
 	//round 1
 	for i := 0; i < 4; i++ {
 		blocks[i] = add_round_key(blocks[i], round_keys[i])
 	}
-	// fmt.Println("Round 1")
-	// for i := 0; i < 4; i++ {
-	// 	for j := 0; j < 4; j++ {
-	// 		fmt.Printf("%02x", blocks[j][i])
-	// 	}
-	// 	fmt.Println()
-	// }
+	fmt.Println("Round 1")
+	print_block(blocks)
 
 	for i := 1; i < 10; i++ {
 		//sub bytes
 		for j := 0; j < 4; j++ {
 			blocks[j] = sub_bytes(blocks[j])
 		}
+		fmt.Println("SubBytes Round", i)
+		print_block(blocks)
+
 		//shift rows
 		blocks = shift_rows(blocks)
+		fmt.Println("ShiftRows Round", i)
+		print_block(blocks)
+
 		//mix columns
 		blocks = mix_columns(blocks)
+		fmt.Println("MixColumns Round", i)
+		print_block(blocks)
 		//add round key
 		for j := 0; j < 4; j++ {
-			blocks[j] = add_round_key(blocks[j], round_keys[(4*(i-1))+j])
+			blocks[j] = add_round_key(blocks[j], round_keys[(4*i)+j])
 		}
-		fmt.Println("round", i, ":", blocks)
+		fmt.Println("AddRoundKey Round", i)
+		print_block(blocks)
 	}
 	// final round
 	//sub bytes
 	for i := 0; i < 4; i++ {
 		blocks[i] = sub_bytes(blocks[i])
 	}
+	fmt.Println("SubBytes Final")
+	print_block(blocks)
 	//shift rows
 	blocks = shift_rows(blocks)
+	fmt.Println("ShiftRows Final")
+	print_block(blocks)
 	//add round key
 	for i := 0; i < 4; i++ {
 		blocks[i] = add_round_key(blocks[i], round_keys[40+i])
 	}
+	fmt.Println("AddRoundKey Final")
+	print_block(blocks)
 	fmt.Println("round 10:", blocks)
 	return linearize(blocks)
 }
@@ -416,27 +425,63 @@ func decrypt(data, key []byte) []byte {
 	blocks := generate_blocks(data)
 	key_block := generate_blocks(key)
 	round_keys := calculate_round_keys(key_block)
+	//print blocks
+	fmt.Println("Blocks:")
+	print_block(blocks)
+
 	for i := 0; i < 4; i++ {
 		blocks[i] = add_round_key(blocks[i], round_keys[40+i])
 	}
+	fmt.Println("Inverse ARK round 0")
+	print_block(blocks)
+
 	blocks = inverse_shift_rows(blocks)
+	fmt.Println("Inverse SR round 0")
+	print_block(blocks)
+
 	for i := 0; i < 4; i++ {
 		blocks[i] = inverse_sub_bytes(blocks[i])
 	}
+	fmt.Println("Inverse SBOX round 0")
+	print_block(blocks)
+
 	for i := 9; i >= 1; i-- {
 		for j := 0; j < 4; j++ {
-			blocks[j] = add_round_key(blocks[j], round_keys[i*4+j])
+			blocks[j] = add_round_key(blocks[j], round_keys[(i*4)+j])
 		}
+		fmt.Println("IARK round", i)
+		print_block(blocks)
+
 		blocks = inverse_mix_columns(blocks)
+
+		fmt.Println("IMC round", i)
+		print_block(blocks)
+
 		blocks = inverse_shift_rows(blocks)
+
+		fmt.Println("ISR round", i)
+		print_block(blocks)
+
 		for j := 0; j < 4; j++ {
 			blocks[j] = inverse_sub_bytes(blocks[j])
 		}
+		fmt.Println("ISBOX round", i)
+		print_block(blocks)
 	}
 
 	for j := 0; j < 4; j++ {
 		blocks[j] = add_round_key(blocks[j], round_keys[j])
 	}
-
+	fmt.Println("ARK round 0")
+	print_block(blocks)
 	return linearize(blocks)
+}
+
+func print_block(block [][]byte) {
+	for i := 0; i < 4; i++ {
+		for j := 0; j < 4; j++ {
+			fmt.Printf("%02x ", block[j][i])
+		}
+		fmt.Println()
+	}
 }
