@@ -185,10 +185,10 @@ func main() {
 	// get first line from data
 	scanner.Scan()
 	key := scanner.Bytes()
+	key_block := generate_blocks(key)
 	// encrypt subsequent lines with key
 	for scanner.Scan() {
 		blocks := generate_blocks(scanner.Bytes())
-		key_block := generate_blocks(key)
 		round_keys := calculate_round_keys(key_block)
 		ciphertext := encrypt(blocks, round_keys)
 		for i := 1; i < nested; i++ {
