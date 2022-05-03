@@ -465,7 +465,7 @@ func main() {
 	key_binary := scanner.Bytes()
 	key := from_binary(key_binary)
 	// encrypt subsequent lines with key
-	enc_func := func(word []byte, wg *sync.WaitGroup) {
+	enc_func := func(word []byte, wg *sync.WaitGroup, out chan<- string) {
 		//blocks := generate_blocks(word)
 		key_block := generate_blocks(key)
 		round_keys := calculate_round_keys(key_block)
@@ -481,14 +481,13 @@ func main() {
 		// for b := range ciphertext {
 		// 	fmt.Printf("%02x", ciphertext[b])
 		// }
-		fmt.Println()
-		fmt.Println("ciphertext lookup:", base64.StdEncoding.EncodeToString(ciphertext_lookup))
-		fmt.Print("ciphertext lookup hex: ")
+		out <- "ciphertext lookup: " + base64.StdEncoding.EncodeToString(ciphertext_lookup)
+		str := ""
 		for b := range ciphertext_lookup {
-			fmt.Printf("%02x", ciphertext_lookup[b])
+			str += fmt.Sprintf("%02x", ciphertext_lookup[b])
 		}
-		fmt.Println()
-		fmt.Println("Plaintext:", string(word))
+		out <- "ciphertext lookup hex: " + str
+		out <- "plaintext: " + string(word)
 		wg.Done()
 		// ciphertext_blocks := generate_blocks(ciphertext)
 		// plaintext := decrypt(ciphertext_blocks, round_keys)
@@ -502,12 +501,18 @@ func main() {
 		// fmt.Println()
 	}
 	wg := sync.WaitGroup{}
+	prnt := make(chan string)
+
 	for scanner.Scan() {
 		wg.Add(1)
 		word := from_binary(scanner.Bytes())
-		enc_func(word, &wg)
+		go enc_func(word, &wg, prnt)
+		fmt.Println(<-prnt)
+		fmt.Println(<-prnt)
+		fmt.Println(<-prnt)
+		fmt.Println()
 	}
-	//wg.Wait()
+	wg.Wait()
 }
 
 //take binary string and convert to byte array
