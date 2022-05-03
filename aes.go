@@ -472,7 +472,6 @@ func main() {
 		// s_decrypt_keys := to_decrypt_key(s_round_keys)
 		// decrpyt_text := decrypt(ciphertext, s_decrypt_keys)
 		ciphertext_lookup := encrypt_tbox(word, s_round_keys)
-
 		for i := 1; i < nested; i++ {
 			ciphertext_lookup = encrypt_tbox(ciphertext_lookup, s_round_keys)
 		}
@@ -488,7 +487,22 @@ func main() {
 	for scanner.Scan() {
 		wg.Add(1)
 		word := from_binary(scanner.Bytes())
-		go enc_func(word, &wg)
+		if debug {
+			key_block := generate_blocks(key)
+			round_keys := calculate_round_keys(key_block)
+			ciphertext := encrypt(generate_blocks(word), round_keys)
+			for i := 1; i < nested; i++ {
+				ciphertext = encrypt(generate_blocks(ciphertext), round_keys)
+			}
+			str := ""
+			for b := range ciphertext {
+				str += fmt.Sprintf("%02x", ciphertext[b])
+			}
+			fmt.Println("ciphertext hex:", str)
+			wg.Done()
+		} else {
+			go enc_func(word, &wg)
+		}
 	}
 	wg.Wait()
 }
