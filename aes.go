@@ -465,52 +465,27 @@ func main() {
 	key_binary := scanner.Bytes()
 	key := from_binary(key_binary)
 	// encrypt subsequent lines with key
-	enc_func := func(word []byte, wg *sync.WaitGroup, out chan<- string) {
-		//blocks := generate_blocks(word)
+	enc_func := func(word []byte, wg *sync.WaitGroup) {
 		key_block := generate_blocks(key)
 		round_keys := calculate_round_keys(key_block)
-		//ciphertext := encrypt(blocks, round_keys)
 		ciphertext_lookup := encrypt_tbox(word, round_keys)
+
 		for i := 1; i < nested; i++ {
-			// blocks = generate_blocks(ciphertext)
-			// ciphertext = encrypt(blocks, round_keys)
 			ciphertext_lookup = encrypt_tbox(ciphertext_lookup, round_keys)
 		}
-		// fmt.Println("ciphertext b64:", base64.StdEncoding.EncodeToString(ciphertext))
-		// fmt.Print("ciphertext hex: ")
-		// for b := range ciphertext {
-		// 	fmt.Printf("%02x", ciphertext[b])
-		// }
-		out <- "ciphertext lookup: " + base64.StdEncoding.EncodeToString(ciphertext_lookup)
+
 		str := ""
 		for b := range ciphertext_lookup {
 			str += fmt.Sprintf("%02x", ciphertext_lookup[b])
 		}
-		out <- "ciphertext lookup hex: " + str
-		out <- "plaintext: " + string(word)
+		fmt.Println("ciphertext lookup: " + base64.StdEncoding.EncodeToString(ciphertext_lookup) + "\nciphertext lookup hex: " + str + "\nplaintext: " + string(word) + "\n")
 		wg.Done()
-		// ciphertext_blocks := generate_blocks(ciphertext)
-		// plaintext := decrypt(ciphertext_blocks, round_keys)
-		// plaintext_lookup := decrypt_tbox(ciphertext_lookup, round_keys)
-		// for i := 1; i < nested; i++ {
-		// 	plaintext_blocks := generate_blocks(plaintext)
-		// 	plaintext = decrypt(plaintext_blocks, round_keys)
-		// }
-		// fmt.Println("plaintext:", string(plaintext))
-		// fmt.Println("plaintext lookup:", string(plaintext_lookup))
-		// fmt.Println()
 	}
 	wg := sync.WaitGroup{}
-	prnt := make(chan string)
-
 	for scanner.Scan() {
 		wg.Add(1)
 		word := from_binary(scanner.Bytes())
-		go enc_func(word, &wg, prnt)
-		fmt.Println(<-prnt)
-		fmt.Println(<-prnt)
-		fmt.Println(<-prnt)
-		fmt.Println()
+		go enc_func(word, &wg)
 	}
 	wg.Wait()
 }
