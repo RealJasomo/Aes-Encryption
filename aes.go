@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"sync"
 )
 
 var debug = false
@@ -461,10 +462,10 @@ func main() {
 
 	// get first line from data
 	scanner.Scan()
-	key := scanner.Bytes()
+	key_binary := scanner.Bytes()
+	key := from_binary(key_binary)
 	// encrypt subsequent lines with key
-	for scanner.Scan() {
-		word := scanner.Bytes()
+	enc_func := func(word []byte, wg *sync.WaitGroup) {
 		//blocks := generate_blocks(word)
 		key_block := generate_blocks(key)
 		round_keys := calculate_round_keys(key_block)
@@ -488,6 +489,7 @@ func main() {
 		}
 		fmt.Println()
 		fmt.Println("Plaintext:", string(word))
+		wg.Done()
 		// ciphertext_blocks := generate_blocks(ciphertext)
 		// plaintext := decrypt(ciphertext_blocks, round_keys)
 		// plaintext_lookup := decrypt_tbox(ciphertext_lookup, round_keys)
@@ -499,6 +501,29 @@ func main() {
 		// fmt.Println("plaintext lookup:", string(plaintext_lookup))
 		// fmt.Println()
 	}
+	wg := sync.WaitGroup{}
+	for scanner.Scan() {
+		wg.Add(1)
+		word := from_binary(scanner.Bytes())
+		enc_func(word, &wg)
+	}
+	//wg.Wait()
+}
+
+//take binary string and convert to byte array
+func from_binary(binary []byte) []byte {
+	var result []byte
+	for i := 0; i < len(binary)/8; i++ {
+		str := string(binary[8*i : 8*i+8])
+		value, err := strconv.ParseUint(str, 2, 8)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+		result = append(result, byte(value))
+	}
+	return result
+
 }
 
 // Perform AES-128 encryption on a byte array
