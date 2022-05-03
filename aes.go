@@ -468,10 +468,13 @@ func main() {
 	enc_func := func(word []byte, wg *sync.WaitGroup) {
 		key_block := generate_blocks(key)
 		round_keys := calculate_round_keys(key_block)
-		ciphertext_lookup := encrypt_tbox(word, round_keys)
+		s_round_keys := key_to_skey(round_keys)
+		// s_decrypt_keys := to_decrypt_key(s_round_keys)
+		// decrpyt_text := decrypt(ciphertext, s_decrypt_keys)
+		ciphertext_lookup := encrypt_tbox(word, s_round_keys)
 
 		for i := 1; i < nested; i++ {
-			ciphertext_lookup = encrypt_tbox(ciphertext_lookup, round_keys)
+			ciphertext_lookup = encrypt_tbox(ciphertext_lookup, s_round_keys)
 		}
 
 		str := ""
@@ -504,6 +507,23 @@ func from_binary(binary []byte) []byte {
 	}
 	return result
 
+}
+
+// generate decrypt key from encrypt key
+func to_decrypt_key(round_keys []uint32) []uint32 {
+	n := len(round_keys)
+	result := make([]uint32, n)
+	for i := 0; i < n; i += 4 {
+		el := n - i - 4
+		for j := 0; j < 4; j++ {
+			x := round_keys[el+j]
+			if i > 0 && i+4 < n {
+				x = td0[sbox[x>>24]] ^ td1[sbox[(x>>16)&0xff]] ^ td2[sbox[(x>>8)&0xff]] ^ td3[sbox[x&0xff]]
+			}
+			result[i+j] = x
+		}
+	}
+	return result
 }
 
 // Perform AES-128 encryption on a byte array
@@ -618,15 +638,19 @@ func decrypt(blocks, round_keys [][]byte) []byte {
 	return linearize(blocks)
 }
 
-func encrypt_tbox(blocks []byte, keys [][]byte) []byte {
+func key_to_skey(key [][]byte) []uint32 {
+	s_keys := make([]uint32, len(key))
+	for i := 0; i < len(key); i++ {
+		s_keys[i] = binary.BigEndian.Uint32(key[i])
+	}
+	return s_keys
+}
+
+func encrypt_tbox(blocks []byte, s_keys []uint32) []byte {
 	s0 := binary.BigEndian.Uint32(blocks[0:4])
 	s1 := binary.BigEndian.Uint32(blocks[4:8])
 	s2 := binary.BigEndian.Uint32(blocks[8:12])
 	s3 := binary.BigEndian.Uint32(blocks[12:16])
-	s_keys := make([]uint32, len(keys))
-	for i := 0; i < len(keys); i++ {
-		s_keys[i] = binary.BigEndian.Uint32(keys[i])
-	}
 	s0 ^= s_keys[0]
 	s1 ^= s_keys[1]
 	s2 ^= s_keys[2]
@@ -659,15 +683,11 @@ func from_u32_block(a []uint32) [][]byte {
 	return b
 }
 
-func decrypt_tbox(blocks []byte, keys [][]byte) []byte {
+func decrypt_tbox(blocks []byte, s_keys []uint32) []byte {
 	s0 := binary.BigEndian.Uint32(blocks[0:4])
 	s1 := binary.BigEndian.Uint32(blocks[4:8])
 	s2 := binary.BigEndian.Uint32(blocks[8:12])
 	s3 := binary.BigEndian.Uint32(blocks[12:16])
-	s_keys := make([]uint32, len(keys))
-	for i := 0; i < len(keys); i++ {
-		s_keys[i] = binary.BigEndian.Uint32(keys[i])
-	}
 	s0 ^= s_keys[0]
 	s1 ^= s_keys[1]
 	s2 ^= s_keys[2]
